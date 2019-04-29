@@ -12,15 +12,20 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-//        tareas = crearTareas()
         tableView.dataSource = self
         tableView.delegate = self
         tableView.backgroundColor = UIColor.lightGray
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        cell.backgroundColor = UIColor.red
+        let cell = UITableViewCell()
+        let tarea = tareas[indexPath.row]
+        cell.textLabel?.text = tarea.nombre
+        if tarea.final < 13.0 {
+            cell.backgroundColor = UIColor.red
+        } else {
+            cell.backgroundColor = UIColor.green
+        }
     }
     
 
@@ -34,13 +39,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let cell = UITableViewCell()
         let tarea = tareas[indexPath.row]
         cell.textLabel?.text = tarea.nombre
-        if tarea.final < 13{
+        if tarea.final < 13.0 {
             cell.backgroundColor = UIColor.red
-        } else if tarea.final >= 13{
+        } else {
             cell.backgroundColor = UIColor.green
         }
         return cell
@@ -52,22 +56,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         performSegue(withIdentifier: "tareaSeleccionadaSegue", sender: tarea)
     }
     
-    
-//    func crearTareas() -> [Tarea]{
-//        let tarea1 = Tarea()
-//        tarea1.nombre = "pasear al perro"
-//        tarea1.importante = true
-//
-//        let tarea2 = Tarea()
-//        tarea2.nombre = "lavar la ropa"
-//        tarea2.importante = true
-//
-//        let tarea3 = Tarea()
-//        tarea3.nombre = "comprar pan"
-//        tarea3.importante = false
-//
-//        return [tarea1, tarea2 ,tarea3]
-//    }
     
     @IBAction func agregarTarea(_ sender: Any) {
         performSegue(withIdentifier: "agregarSegue", sender: nil)
@@ -88,14 +76,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            self.tareas.remove(at: indexPath.row)
-            self.tableView.reloadData()
+        if editingStyle == UITableViewCellEditingStyle.delete {
+            let tarea = tareas[indexPath.row]
+            let delegate  = (UIApplication.shared.delegate as! AppDelegate)
+            let context = delegate.persistentContainer.viewContext
+            context.delete(tarea)
+            delegate.saveContext()
+            viewWillAppear(true)
         }
-    }
-    
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
